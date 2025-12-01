@@ -17,9 +17,83 @@ from PySide6.QtGui import QFont, QIcon, QPainter, QColor
 # Funciones auxiliares
 def crear_titulo_util(texto: str) -> QLabel:
     label = QLabel(texto)
-    label.setFont(QFont("Serif", 22, QFont.Bold))
+    label.setFont(QFont("Palatino Linotype", 24, QFont.Bold))
     label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     return label
+
+def crear_encabezado_util(texto: str) -> QLabel:
+    label = QLabel(texto)
+    label.setFont(QFont("Palatino Linotype", 16, QFont.Bold))
+    label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    return label
+
+
+# DATOS
+DATA_LIBROS = [
+    [101, "Cien años de soledad", "García Márquez", "Ficción", "Libro", "Alfaguara", 1],
+    [102, "The Lord of the Rings", "J.R.R. Tolkien", "Fantasía", "Libro", "Minotauro", 3],
+    [103, "Guía de Programación Qt", "Varios", "Informática", "Multimedia", "Eudeba", 5],
+    [104, "El Principito", "A. de Saint-Exupéry", "Infantil", "Libro", "Salamandra", 1]
+]
+
+DATA_PRESTAMOS = [
+    [1, "101 - Soledad", "Juan Pérez", "15/11/2025", "29/11/2025", "Vigente"],
+    [2, "103 - Guía Qt", "María López", "10/11/2025", "10/12/2025", "Vigente"],
+    [3, "102 - Rings", "Carlos Ruiz", "01/11/2025", "15/11/2025", "Devuelto"]
+]
+
+
+# MODELOS DE DATOS DEL FORMULARIO 
+    # Sirve para gestionar los datos de la tabla de libros
+    #  porque si no no se ve nada ya que hereda de QAbstractTableModel
+class BibliotecaTableModel(QAbstractTableModel):
+    def __init__(self, data, header):
+        super().__init__()
+        self._data = data
+        self._header = header
+
+    # Devolver el número de FILAS
+    def rowCount(self, parent = QModelIndex()):
+        return len(self._data)
+
+    # Devolver el número de COLUMNAS
+    def columnCount(self, parent = QModelIndex()):
+        return len(self._header)
+    
+    # Devolver los datos para cada CELDA
+    def data(self, index, role = Qt.DisplayRole):
+        # Comprobar que el índice es válido
+            # si no es válido o la fila o columna están fuera de rango devolvemos none (nulo)
+        if not index.isValid() or index.row() >= self.rowCount() or index.column() >= self.columnCount():
+            return None
+        
+        # Rol principal: mostrar datos
+        if role == Qt.DisplayRole:
+            return self._data[index.row()][index.column()]
+        
+        # Rol de ToolTip: (información al pasar el ratón)
+        if role == Qt.ToolTipRole:
+            return f"{self._header[index.column()]}: {self._data[index.row()][index.column()]}"
+        
+        # Rol de fondo (para colorear filas de préstamos)
+        if role == Qt.BackgroundRole:
+            status = self._data[index.row()][5]  
+            if status == "Vigente":
+                # Color amarillo para préstamos vigentes
+                return QColor(255, 255, 204)
+            elif status == "Devuelto":
+                # Color verde claro para préstamos devueltos
+                return QColor(204, 255, 204)
+        # Para otros roles, devolver None
+        return None
+        
+
+    # Devuelve el encabezado de las columnas
+    def headerData(self, section, orientation, role = Qt.DisplayRole):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self._header[section]
+        return None 
+    
 
 class FormularioLibros(QWidget):
     # Tab 1
@@ -31,11 +105,16 @@ class FormularioLibros(QWidget):
         
         # Layout contenedor
         self.layout_contenedor = QHBoxLayout()
+        
         # Formulario
-        self.layout_contenedor.addWidget(self.crear_tabla_libros())
+        self.layout_contenedor.addWidget(self._crear_formulario_libros())
+        
+        # Tabla
+        self.layout_contenedor.addWidget(self._crear_tabla_libros())
+        
         self.layout_principal.addLayout(self.layout_contenedor)
         
-    def crear_tabla_libros(self):
+    def _crear_formulario_libros(self):
         widget = QWidget()
         layout = QGridLayout(widget)
         widget.setMaximumWidth(350)
@@ -54,7 +133,7 @@ class FormularioLibros(QWidget):
         campos[3][1].addItems(["Ciencia Ficción", "Fantasia", "Historia", "Romance", "Infantil"]) 
         campos[4][1].addItems(["Tapa Dura", "Tapa Blanda", "Revista"])
         
-        layout.addWidget(QLabel("Datos nuevo libro"), 0, 0, 1, 2) # (label, fila, columna, rowspan, colspan)
+        layout.addWidget(crear_encabezado_util("Datos nuevo libro"), 0, 0, 1, 2) # (label, fila, columna, rowspan, colspan)
         
         for i, (nombre, control) in enumerate(campos):
             label = QLabel(nombre)
@@ -75,6 +154,43 @@ class FormularioLibros(QWidget):
         layout.addWidget(btnLimpiar, len(campos) + 2, 0, 1, 2) # (boton, fila, columna, rowspan, colspan)
         
         layout.setContentsMargins(20, 20, 20, 20) # (left, top, right, bottom)
+        
+        return widget
+    
+    def _crear_tabla_libros(self):
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        
+        cabecera = ["ID", "Título", "Autor", "Temática", "Formulario", "Editorial", "Estantería"]
+        self.modelo_libros = BibliotecaTableModel(DATA_LIBROS, cabecera)
+        
+        self.tabla_libros = QTableView()
+        self.tabla_libros.setModel(self.modelo_libros)
+        
+        header = self.tabla_libros.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents) #Para no usar scroll horizontal
+        header.setStretchLastSection(True) # La ultima columna ocupa espacio restante
+        
+        self.tabla_libros.setSelectionBehavior(QTableView.SelectRows) # Seleccionar fila completa
+        self.tabla_libros.setEditTriggers(QTableView.NoEditTriggers) # No permite ediciones
+        
+        #Añadimos los widget
+        layout.addWidget(crear_encabezado_util("Catálogo de Libros - Biblioteca"))
+        layout.addWidget(self.tabla_libros)
+        
+        #Creamos el layout de botones con sus botones
+        layout_botones = QHBoxLayout()
+        btnEditar = QPushButton("Editar Seleccionado")
+        btnEditar.setIcon(QIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_FileDialogListView)))
+        btnEli = QPushButton("Eliminar Seleccionado")
+        btnEli.setIcon(QIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon)))
+        
+        #Añadimos los Widget
+        layout_botones.addWidget(btnEditar)
+        layout_botones.addWidget(btnEli)
+
+        #Al layout principal le pasamos el layout creado
+        layout.addLayout(layout_botones)
         
         return widget
         
@@ -98,7 +214,7 @@ class MainWindow(QMainWindow):
         super().__init__() # Esto hace que herede todo de QWidget
         self.setWindowTitle("Sistema de Biblioteca")
         self.setWindowIcon(QIcon("libros.png"))
-        self.setGeometry(100, 100, 800, 500) # (x, y, ancho y alto)
+        self.setGeometry(100, 100, 1000, 600) # (x, y, ancho y alto)
         
         self.tabs = QTabWidget() # Crear pestañas
         self.setCentralWidget(self.tabs) # Poner las pestañas en la ventana principal
