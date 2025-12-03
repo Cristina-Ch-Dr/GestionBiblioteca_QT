@@ -42,10 +42,10 @@ class TableModel(QAbstractTableModel):
             status = self._data[index.row()][5]  
             if status == "Vigente":
                 # Color amarillo para préstamos vigentes
-                return QColor(255, 255, 204)
+                return QColor("#F5B027")
             elif status == "Devuelto":
-                # Color verde claro para préstamos devueltos
-                return QColor(204, 255, 204)
+                # Color verde oscuro para préstamos devueltos
+                return QColor("#355c56")
         # Para otros roles, devolver None
         return None
         

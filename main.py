@@ -10,7 +10,7 @@ from PySide6.QtCore import (
 )
 from PySide6.QtGui import QFont, QIcon, QPainter, QColor
 
-import formularioLibros, formularioPrestamos
+import formularioLibros, formularioPrestamos, formularioRecursos
 
 
 
@@ -32,11 +32,6 @@ DATA_PRESTAMOS = [
 
 
 
-class FormularioPersonal(QWidget):
-    # Tab 3
-    def __init__(self):
-        super().__init__()
-
 
 
 
@@ -46,7 +41,7 @@ class MainWindow(QMainWindow):
         super().__init__() # Esto hace que herede todo de QWidget
         self.setWindowTitle("Sistema de Biblioteca")
         self.setWindowIcon(QIcon("libros.png"))
-        self.setGeometry(100, 100, 1000, 600) # (x, y, ancho y alto)
+        self.setGeometry(100, 100, 1100, 800) # (x, y, ancho y alto)
         
         self.tabs = QTabWidget() # Crear pestañas
         self.setCentralWidget(self.tabs) # Poner las pestañas en la ventana principal
@@ -62,7 +57,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.tab_libros, "&Libros")
         self.tab_prestamos = formularioPrestamos.Prestamos() # Crear la pestaña de prestamos
         self.tabs.addTab(self.tab_prestamos, "&Préstamos")
-        self.tab_personal = FormularioPersonal() # Crear la pestaña de personal
+        self.tab_personal = formularioRecursos.Recursos() # Crear la pestaña de personal
         self.tabs.addTab(self.tab_personal, "Personal + &Recursos")
         #Configuracion de tooltips
         self.tabs.setTabToolTip(0, "ALT + L: Ir a Libros")

@@ -8,7 +8,7 @@ from PySide6.QtGui import QIcon
 from funcionesAuxiliares import crear_titulo_util, crear_encabezado_util
 from biblioteca import TableModel as BibliotecaTableModel
 
-from main import DATA_LIBROS, DATA_PRESTAMOS
+import main
 
 class Libros(QWidget):
     # Tab 1
@@ -77,7 +77,7 @@ class Libros(QWidget):
         layout = QVBoxLayout(widget)
         
         cabecera = ["ID", "Título", "Autor", "Temática", "Formulario", "Editorial", "Estantería"]
-        self.modelo_libros = BibliotecaTableModel(DATA_LIBROS, cabecera)
+        self.modelo_libros = BibliotecaTableModel(main.DATA_LIBROS, cabecera)
         
         self.tabla_libros = QTableView()
         self.tabla_libros.setModel(self.modelo_libros)
