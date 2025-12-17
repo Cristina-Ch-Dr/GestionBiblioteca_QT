@@ -42,10 +42,10 @@ class TableModel(QAbstractTableModel):
             status = self._data[index.row()][5]  
             if status == "Vigente":
                 # Color amarillo para préstamos vigentes
-                return QColor("#F5B027")
+                return QColor("#F59527")
             elif status == "Devuelto":
                 # Color verde oscuro para préstamos devueltos
-                return QColor("#355c56")
+                return QColor("#2b6b61")
         # Para otros roles, devolver None
         return None
         
@@ -55,4 +55,16 @@ class TableModel(QAbstractTableModel):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self._header[section]
         return None 
+    
+    
+    def removeRow(self, rowIndex):
+        # Inicia el proceso de eliminacion para asegurar que la vista (QTableView) se actualiza correctamente
+        if 0 <= rowIndex < len(self._data):
+            self.beginRemoveRows(QModelIndex(), rowIndex, rowIndex)
+            # Elimina la fila de los datos
+            del self._data[rowIndex]
+            # Finaliza el proceso de eliminacion
+            self.endRemoveRows()
+            return True
+        return False
     

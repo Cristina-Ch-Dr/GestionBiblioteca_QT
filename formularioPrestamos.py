@@ -13,7 +13,7 @@ from PySide6.QtGui import QFont, QIcon, QPainter, QColor
 from funcionesAuxiliares import crear_titulo_util, crear_encabezado_util
 from biblioteca import TableModel as BibliotecaTableModel
 
-import main
+import datos
 
 # Clase formulario de prestamos
 class Prestamos(QWidget):
@@ -77,7 +77,7 @@ class Prestamos(QWidget):
         layout = QVBoxLayout(widget)
         
         cabecera = ["ID Préstamo", "Libro", "Usuario", "Fecha Préstamo", "Fecha Devolución Estimada", "Estado"]
-        self.modelo_libros = BibliotecaTableModel(main.DATA_PRESTAMOS, cabecera)
+        self.modelo_libros = BibliotecaTableModel(datos.PRESTAMOS, cabecera)
         
         self.tabla_libros = QTableView()
         self.tabla_libros.setModel(self.modelo_libros)

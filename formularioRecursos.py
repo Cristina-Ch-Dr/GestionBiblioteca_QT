@@ -41,7 +41,7 @@ class Recursos(QWidget):
         campos[1][1].addItems(["Sala 1", "Sala 2", "Sala 3"])
         
         # Usabilidad: Agrupar campos en Grid
-        layout.addWidget(crear_encabezado_util("---Gestión de Bibliotecarios---"), 0, 0, 1, 2)
+        layout.addWidget(crear_encabezado_util("--- Gestión de Bibliotecarios ---"), 0, 0, 1, 2)
         
         for i, (nombre, control) in enumerate(campos):
             label = QLabel(nombre)
@@ -72,7 +72,7 @@ class Recursos(QWidget):
         ]
                 
         # Usabilidad: Agrupar campos en Grid
-        layout.addWidget(crear_encabezado_util("---Gestión de Espacios---"), 0, 0, 1, 2)
+        layout.addWidget(crear_encabezado_util("--- Gestión de Espacios ---"), 0, 0, 1, 2)
         
         for i, (nombre, control) in enumerate(campos):
             label = QLabel(nombre)
